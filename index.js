@@ -45,11 +45,12 @@ var port = process.env.PORT || 5000;
 app.get('/', (req, res) => {res.send("started")})
 app.get('/st', (req, res) => {
   const log = (text) => {
+ res.send("Done")
+
     console.log(text)
-    fs.writeFile( "st"+new Date().toISOString().slice(0, 10)+".txt", JSON.stringify(text), function (err) {
+    fs.writeFile( "st"+new Date().toISOString().slice(0, 10)+".json", JSON.stringify(text), function (err) {
       if (err) return console.log(err);
     });
- res.send("Done")
  const FormData = require('form-data');
 
 const axiosImage = async(CHAT_ID, caption) => {
@@ -58,7 +59,7 @@ const axiosImage = async(CHAT_ID, caption) => {
         const formData = new FormData();
 
         formData.append('chat_id', CHAT_ID);
-        formData.append('document', fs.createReadStream(__dirname+"/st"+new Date().toISOString().slice(0, 10)+".txt"));
+        formData.append('document', fs.createReadStream(__dirname+"/st"+new Date().toISOString().slice(0, 10)+".json"));
         formData.append('caption', ` ✅ Student Server Back Up on ${new Date().toISOString().slice(0, 10)}`);
     
         const response = await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, formData, {
@@ -74,10 +75,49 @@ axiosImage(CHAT_ID,"Test")
 
   };
 function abc(){
-  fs.unlinkSync(__dirname+"/st"+new Date().toISOString().slice(0, 10)+".txt")
+  fs.unlinkSync(__dirname+"/st"+new Date().toISOString().slice(0, 10)+".json")
 }
 setTimeout(abc,10000)
   const dbRefObject = st.database().ref().child("/");
+// Sync object changes
+dbRefObject.once('value', get => log(get.val())); 
+})
+app.get('/ts', (req, res) => {
+ res.send("Done")
+
+  const log = (text) => {
+    console.log(text)
+    fs.writeFile( "ts"+new Date().toISOString().slice(0, 10)+".json", JSON.stringify(text), function (err) {
+      if (err) return console.log(err);
+    });
+ const FormData = require('form-data');
+
+const axiosImage = async(CHAT_ID, caption) => {
+    try {
+
+        const formData = new FormData();
+
+        formData.append('chat_id', CHAT_ID);
+        formData.append('document', fs.createReadStream(__dirname+"/ts"+new Date().toISOString().slice(0, 10)+".json"));
+        formData.append('caption', ` ✅ Teacher Server Back Up on ${new Date().toISOString().slice(0, 10)}`);
+    
+        const response = await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, formData, {
+            headers: {     'Content-Type': 'multipart/form-data'}
+            
+        });
+
+    } catch (err) {
+        console.log(err);
+    }
+}
+axiosImage(CHAT_ID,"Test")
+
+  };
+function abc(){
+  fs.unlinkSync(__dirname+"/ts"+new Date().toISOString().slice(0, 10)+".json")
+}
+setTimeout(abc,10000)
+  const dbRefObject = firebase.database().ref().child("/");
 // Sync object changes
 dbRefObject.once('value', get => log(get.val())); 
 })
